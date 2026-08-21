@@ -40,6 +40,42 @@ js/app.js          App logic — clock, live times, countdown (no editing needed
 4. Open **`js/data.js`**, replace the `config.location`, `prayerTimes`, and
    `jummahTimes` blocks with what you copied, save, and push to GitHub.
 
+## Let admins edit times via Google Sheets (no code, no GitHub)
+
+This lets non-technical admins update Iqamah / Jummah times by editing a
+Google Sheet. The site reads the sheet each time it loads and falls back to
+the values in `js/data.js` if the sheet can't be reached.
+
+**One-time setup (owner):**
+
+1. Create a new Google Sheet. In column **A** put the label, in column **B**
+   the time. Example (a header row is fine — it's ignored):
+
+   | Prayer          | Iqamah    |
+   | --------------- | --------- |
+   | Fajr            | 6:00 AM   |
+   | Dhuhr           | 2:00 PM   |
+   | Asr             | 6:45 PM   |
+   | Maghrib         | +4        |
+   | Isha            | 10:05 PM  |
+   | Jummah Khutbah  | 1:30 PM   |
+   | Jummah Iqamah   | 2:05 PM   |
+
+   - Times use `H:MM AM/PM`.
+   - **Maghrib** accepts either a fixed time (`8:19 PM`) **or** a number of
+     minutes after sunset (`+4`), which then adjusts automatically each day.
+2. **File → Share → Publish to web → (Comma-separated values .csv) → Publish.**
+   Copy the CSV link it gives you.
+3. Paste that link into `config.sheetCsvUrl` in `js/data.js`, then commit/push.
+4. **Give the admins the sheet's normal edit link** (Share → add their emails
+   as Editors, or "anyone with the link can edit"). That link is what they use.
+
+**Ongoing (admins):** open the sheet link, change a time cell, done. The site
+reflects it within a few minutes (Google caches the published CSV briefly).
+
+> Only Iqamah and Jummah times come from the sheet. The daily **Athan/start**
+> times always come from the Aladhan API, never the sheet.
+
 ## Editing `js/data.js` directly (alternative)
 
 - **Iqamah times** — change the `iqamah` values in `prayerTimes`. A fixed time is

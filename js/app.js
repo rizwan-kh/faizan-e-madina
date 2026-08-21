@@ -114,6 +114,82 @@ async function fetchAthanTimes() {
 }
 
 // -----------------------------------------------------------
+//  Admin-editable Iqamah times from a published Google Sheet.
+//  The sheet is a simple two-column list: label, value. Example:
+//    Fajr            6:00 AM
+//    Dhuhr           2:00 PM
+//    Asr             6:45 PM
+//    Maghrib         +4          (minutes after the Maghrib start)
+//    Isha            10:05 PM
+//    Jummah Khutbah  1:30 PM
+//    Jummah Iqamah   2:05 PM
+//  Unknown/blank rows (e.g. a header row) are ignored.
+//  Overrides only Iqamah/Jummah — never the API-driven Athan times.
+// -----------------------------------------------------------
+
+// Minimal CSV parser (handles quoted fields and commas within quotes)
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else if (c === '"') inQuotes = true;
+    else if (c === ",") { row.push(field); field = ""; }
+    else if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
+    else if (c === "\r") { /* ignore */ }
+    else field += c;
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+// Turn a sheet value into an iqamah: a clock time string, or an offset object
+function iqamahFromCell(v) {
+  const val = v.trim();
+  if (/[ap]\.?m\.?/i.test(val)) return val;              // has AM/PM → fixed time
+  const m = val.match(/^\+?\s*(\d{1,3})\b/);             // leading number → offset
+  if (m) return { offsetFromAthan: parseInt(m[1], 10) };
+  return val;                                            // fall back to raw string
+}
+
+async function fetchSheetTimes() {
+  if (!config.sheetCsvUrl) return false;
+  const res = await fetch(config.sheetCsvUrl, { cache: "no-store" });
+  if (!res.ok) throw new Error("Sheet responded " + res.status);
+  const rows = parseCSV(await res.text());
+
+  let applied = false;
+  const jummah = { athan: null, iqamah: null };
+
+  rows.forEach((r) => {
+    const key = (r[0] || "").trim().toLowerCase();
+    const val = (r[1] || "").trim();
+    if (!key || !val) return;
+
+    if (key.startsWith("fajr")) { prayerTimes.fajr.iqamah = iqamahFromCell(val); applied = true; }
+    else if (key.startsWith("dhuhr") || key.startsWith("zuhr") || key.startsWith("duhr")) { prayerTimes.dhuhr.iqamah = iqamahFromCell(val); applied = true; }
+    else if (key.startsWith("asr")) { prayerTimes.asr.iqamah = iqamahFromCell(val); applied = true; }
+    else if (key.startsWith("maghrib")) { prayerTimes.maghrib.iqamah = iqamahFromCell(val); applied = true; }
+    else if (key.startsWith("isha")) { prayerTimes.isha.iqamah = iqamahFromCell(val); applied = true; }
+    else if (key.includes("khutbah")) { jummah.athan = val; applied = true; }
+    else if (key.includes("jumm") || key.includes("jumu")) { jummah.iqamah = val; applied = true; }
+  });
+
+  // Update the (first) Jummah entry if the sheet provided values
+  if ((jummah.athan || jummah.iqamah) && jummahTimes[0]) {
+    if (jummah.athan) jummahTimes[0].athan = jummah.athan;
+    if (jummah.iqamah) jummahTimes[0].iqamah = jummah.iqamah;
+  }
+
+  return applied;
+}
+
+// -----------------------------------------------------------
 //  Static content from config
 // -----------------------------------------------------------
 function renderStatic() {
@@ -420,16 +496,22 @@ async function init() {
   renderMoon();
   startClock();
 
-  // Try to load live Athan (start) times before first render.
+  // Load live Athan (start) times and admin-edited Iqamah times (Google
+  // Sheet) in parallel before the first render. Each falls back on its own.
+  setTimesSource("Loading today's prayer times…");
+  let apiOk = false;
+  const jobs = [];
   if (config.api && config.api.enabled) {
-    setTimesSource("Loading today's prayer start times…");
-    try {
-      await fetchAthanTimes();
-      setTimesSource("Prayer start times auto-updated daily for " + config.location + ". Iqamah times set by the masjid.");
-    } catch (e) {
-      setTimesSource("Showing saved prayer times (couldn't reach the live time service).");
-    }
+    jobs.push(fetchAthanTimes().then(() => { apiOk = true; }).catch(() => {}));
   }
+  if (config.sheetCsvUrl) {
+    jobs.push(fetchSheetTimes().catch(() => {}));
+  }
+  await Promise.all(jobs);
+
+  setTimesSource(apiOk
+    ? "Prayer start times auto-update daily for " + config.location + ". Iqamah times set by the masjid."
+    : "Showing saved prayer times (couldn't reach the live time service).");
 
   renderPrayerCards();
   renderSunTimes();

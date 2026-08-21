@@ -37,6 +37,13 @@ const config = {
   // a directions link from the address above.
   mapsUrl: "",
 
+  // ---- Admin-editable Iqamah times via Google Sheets ----
+  // Paste the "Publish to web" CSV link of the times Google Sheet here so
+  // admins can update Iqamah/Jummah times by editing the sheet (no code).
+  // Leave "" to use only the fixed values in this file.
+  // See README ("Let admins edit times via Google Sheets") for setup steps.
+  sheetCsvUrl: "",
+
   // ---- Automatic prayer START times (Athan) ----
   // Start times are fetched live from the free Aladhan API for the
   // location below. Iqamah times are NOT from the API — they are
