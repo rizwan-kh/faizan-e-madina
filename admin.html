@@ -119,27 +119,61 @@
     }
     $("addAnn").onclick=()=>addAnnBox("");
 
-    // ---- prefill from the published sheet CSV ----
-    async function prefill(){
-      const anns=[];
-      try{
-        if(!config.sheetCsvUrl) throw 0;
-        const res=await fetch(config.sheetCsvUrl,{cache:"no-store"});
-        const rows=parseCSV(await res.text());
-        rows.forEach(r=>{
-          const k=(r[0]||"").trim().toLowerCase(), v=(r[1]||"").trim();
-          if(!k||!v)return;
-          if(k.startsWith("fajr"))$("fajr").value=v;
-          else if(k.startsWith("dhuhr")||k.startsWith("zuhr"))$("dhuhr").value=v;
-          else if(k.startsWith("asr"))$("asr").value=v;
-          else if(k.startsWith("maghrib"))$("maghrib").value=v;
-          else if(k.startsWith("isha"))$("isha").value=v;
-          else if(k.includes("khutbah"))$("jummahKhutbah").value=v;
-          else if(k.includes("jumm")||k.includes("jumu"))$("jummahIqamah").value=v;
-          else if(k.startsWith("announce")||k.startsWith("notice")||k.startsWith("message"))anns.push(v);
+    const DAILY_FIELDS = ["fajr","dhuhr","asr","maghrib","isha"];
+    let prefillOk = false;
+
+    function fillFields(values, anns){
+      if(values){
+        ["fajr","dhuhr","asr","maghrib","isha","jummahKhutbah","jummahIqamah"].forEach(k=>{
+          if(values[k]!=null && values[k]!=="") $(k).value=values[k];
         });
-      }catch(e){}
-      if(anns.length)anns.forEach(addAnnBox); else addAnnBox("");
+      }
+      (anns && anns.length ? anns : [""]).forEach(addAnnBox);
+    }
+
+    // Prefill from the authoritative Apps Script endpoint (uncached); fall back
+    // to the published CSV. Marks prefillOk so we never let a failed load lead
+    // to saving blanks over good data.
+    async function prefill(){
+      // 1) authoritative: GET the Apps Script (returns current sheet values)
+      if(config.adminApiUrl){
+        try{
+          const res=await fetch(config.adminApiUrl,{cache:"no-store"});
+          const data=await res.json();
+          if(data && data.ok && data.values){
+            fillFields(data.values, data.announcements);
+            prefillOk=true; return;
+          }
+        }catch(e){}
+      }
+      // 2) fallback: parse the published CSV
+      if(config.sheetCsvUrl){
+        try{
+          const res=await fetch(config.sheetCsvUrl,{cache:"no-store"});
+          const rows=parseCSV(await res.text());
+          const values={}; const anns=[];
+          rows.forEach(r=>{
+            const k=(r[0]||"").trim().toLowerCase(), v=(r[1]||"").trim();
+            if(!k||!v)return;
+            if(k.startsWith("fajr"))values.fajr=v;
+            else if(k.startsWith("dhuhr")||k.startsWith("zuhr")||k.startsWith("duhr"))values.dhuhr=v;
+            else if(k.startsWith("asr"))values.asr=v;
+            else if(k.startsWith("maghrib"))values.maghrib=v;
+            else if(k.startsWith("isha"))values.isha=v;
+            else if(k.includes("khutbah"))values.jummahKhutbah=v;
+            else if(k.includes("jumm")||k.includes("jumu"))values.jummahIqamah=v;
+            else if(k.startsWith("announce")||k.startsWith("notice")||k.startsWith("message"))anns.push(v);
+          });
+          fillFields(values, anns);
+          prefillOk=true; return;
+        }catch(e){}
+      }
+      // 3) couldn't load current values
+      fillFields(null, []);
+      prefillOk=false;
+      const w=$("setupWarning"); w.style.display="block";
+      w.textContent="Couldn't load the current times. Saving is disabled so you don't overwrite them with blanks. Refresh to try again.";
+      $("save").disabled=true;
     }
 
     function showStatus(kind,msg){
@@ -151,32 +185,40 @@
       const pw=$("password").value.trim();
       if(!pw){ showStatus("err","Please enter the admin password."); return; }
       if(!config.adminApiUrl){ showStatus("err","Saving isn't set up yet (adminApiUrl is empty). See README."); return; }
+      if(!prefillOk){ showStatus("err","Current times didn't load — refresh before saving to avoid overwriting them."); return; }
+
+      const values={
+        fajr:$("fajr").value.trim(), dhuhr:$("dhuhr").value.trim(), asr:$("asr").value.trim(),
+        maghrib:$("maghrib").value.trim(), isha:$("isha").value.trim(),
+        jummahKhutbah:$("jummahKhutbah").value.trim(), jummahIqamah:$("jummahIqamah").value.trim()
+      };
+      const missing = DAILY_FIELDS.filter(k=>!values[k]);
+      if(missing.length){ showStatus("err","Please fill every daily prayer time. Missing: "+missing.join(", ")); return; }
 
       const payload={
-        password:pw,
-        values:{
-          fajr:$("fajr").value.trim(), dhuhr:$("dhuhr").value.trim(), asr:$("asr").value.trim(),
-          maghrib:$("maghrib").value.trim(), isha:$("isha").value.trim(),
-          jummahKhutbah:$("jummahKhutbah").value.trim(), jummahIqamah:$("jummahIqamah").value.trim()
-        },
+        password:pw, values,
         announcements:[...document.querySelectorAll("#anns textarea")].map(t=>t.value.trim()).filter(Boolean)
       };
 
       $("save").disabled=true; showStatus("info","Saving…");
+      let res;
       try{
         // text/plain body = a "simple" request (no CORS preflight)
-        const res=await fetch(config.adminApiUrl,{method:"POST",body:JSON.stringify(payload)});
+        res=await fetch(config.adminApiUrl,{method:"POST",body:JSON.stringify(payload)});
+      }catch(networkErr){
+        // The request never got sent (network/CORS). Nothing was written.
+        showStatus("err","Couldn't reach the server. Check your connection and try again.");
+        $("save").disabled=false; return;
+      }
+      // The request was sent; do NOT re-send (avoids a duplicate write).
+      try{
         const data=await res.json();
         if(data.ok) showStatus("ok","✓ Saved. The board updates within a few minutes.");
         else showStatus("err","Couldn't save: "+(data.error||"unknown error"));
-      }catch(e){
-        // Response couldn't be read (browser CORS). Fire a no-cors write so the
-        // save still lands, and tell the admin we couldn't confirm.
-        try{ await fetch(config.adminApiUrl,{method:"POST",mode:"no-cors",body:JSON.stringify(payload)}); }catch(_){}
-        showStatus("info","Saved (couldn't confirm in this browser). If the password was correct, the board updates within a few minutes.");
-      }finally{
-        $("save").disabled=false;
+      }catch(parseErr){
+        showStatus("info","Saved, but couldn't read the confirmation in this browser. It should update within a few minutes.");
       }
+      $("save").disabled=false;
     };
 
     // init

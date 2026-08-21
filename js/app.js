@@ -159,8 +159,11 @@ function parseCSV(text) {
 // Accepts "6:00 AM" (as-is), "06:00"/"18:45" (24-hour → 12-hour).
 function toClock12(v) {
   // Strip seconds if a spreadsheet exports them (06:00:00 → 06:00)
-  const val = v.trim().replace(/(\d{1,2}:\d{2}):\d{2}/, "$1");
-  if (/[ap]\.?m\.?/i.test(val)) return val.toUpperCase().replace(/\s+/g, " "); // already 12h
+  let val = v.trim().replace(/(\d{1,2}:\d{2}):\d{2}/, "$1");
+  if (/[ap]\.?m\.?/i.test(val)) {                       // already 12h
+    val = val.toUpperCase().replace(/\s+/g, " ");
+    return val.replace(/^(\d{1,2})\s*(AM|PM)$/, "$1:00 $2"); // "6 PM" → "6:00 PM"
+  }
   if (/^\d{1,2}:\d{2}$/.test(val)) return to12Hour(val);                        // 24h → 12h
   return val;
 }
@@ -262,22 +265,35 @@ function startClock() {
 // -----------------------------------------------------------
 //  Dates (Gregorian + Hijri)
 // -----------------------------------------------------------
+// The Islamic day begins at Maghrib (sunset), not midnight. After Maghrib the
+// Hijri date should already be the next day, so return a Date advanced by one
+// day once the masjid's local time has passed the Maghrib start time.
+function islamicDate() {
+  const now = new Date();
+  const maghrib = timeToMinutes(prayerTimes.maghrib.athan);
+  if (maghrib !== null && masjidNowMinutes() >= maghrib) {
+    return new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  }
+  return now;
+}
+
 function renderDate() {
   const now = new Date();
   const TZ = "America/Toronto"; // show the masjid's local date
 
+  // Gregorian follows the civil day (changes at midnight).
   const gregorian = now.toLocaleDateString("en-US", {
     timeZone: TZ,
     weekday: "long", year: "numeric", month: "long", day: "numeric",
   });
   document.getElementById("gregorianDate").textContent = gregorian;
 
-  // Hijri date via the built-in Islamic calendar (no library needed).
-  // Use full traditional month names for the complete date.
+  // Hijri follows the Islamic day (changes at Maghrib) via the built-in
+  // Islamic calendar, with full traditional month names.
   try {
     const parts = new Intl.DateTimeFormat("en-US-u-ca-islamic-umalqura", {
       timeZone: TZ, day: "numeric", month: "numeric", year: "numeric",
-    }).formatToParts(now);
+    }).formatToParts(islamicDate());
     const o = {};
     parts.forEach((p) => (o[p.type] = p.value));
     const name = HIJRI_MONTHS[parseInt(o.month, 10) - 1] || "";
@@ -315,12 +331,12 @@ function renderMoon() {
   const lit = document.getElementById("moonLit");
   if (!lit) return;
 
-  // Hijri day of month (1..29/30) in the masjid timezone
+  // Hijri day of month (1..29/30) — follows the Islamic day (rolls at Maghrib)
   let day = 15;
   try {
     day = parseInt(new Intl.DateTimeFormat("en-US-u-ca-islamic-umalqura", {
       timeZone: "America/Toronto", day: "numeric",
-    }).format(new Date()), 10) || 15;
+    }).format(islamicDate()), 10) || 15;
   } catch (e) {}
 
   const SYNODIC = 29.53;
@@ -526,9 +542,10 @@ async function init() {
   // Load live Athan (start) times and admin-edited Iqamah times (Google
   // Sheet) in parallel before the first render. Each falls back on its own.
   setTimesSource("Loading today's prayer times…");
-  let apiOk = false;
+  let apiOk = false, apiTried = false;
   const jobs = [];
   if (config.api && config.api.enabled) {
+    apiTried = true;
     jobs.push(fetchAthanTimes().then(() => { apiOk = true; }).catch(() => {}));
   }
   if (config.sheetCsvUrl) {
@@ -536,9 +553,13 @@ async function init() {
   }
   await Promise.all(jobs);
 
-  setTimesSource(apiOk
-    ? "Prayer start times auto-update daily for " + config.location + ". Iqamah times set by the masjid."
-    : "Showing saved prayer times (couldn't reach the live time service).");
+  if (apiOk) {
+    setTimesSource("Prayer start times auto-update daily for " + config.location + ". Iqamah times set by the masjid.");
+  } else if (apiTried) {
+    setTimesSource("Showing saved prayer times (couldn't reach the live time service).");
+  } else {
+    setTimesSource("Iqamah times set by the masjid.");
+  }
 
   renderPrayerCards();
   renderSunTimes();
@@ -546,8 +567,18 @@ async function init() {
   renderAnnouncements();
   updateNextPrayer();
 
-  // Refresh the countdown every 30 seconds
-  setInterval(updateNextPrayer, 30 * 1000);
+  // Now that the real Maghrib/sunset time is loaded, re-render the date and
+  // moon so the Maghrib rollover uses the accurate time.
+  renderDate();
+  renderMoon();
+
+  // Refresh every 30 seconds: countdown, plus date & moon so a display left
+  // running rolls the Hijri date over at Maghrib (and Gregorian at midnight).
+  setInterval(() => {
+    updateNextPrayer();
+    renderDate();
+    renderMoon();
+  }, 30 * 1000);
 }
 
 document.addEventListener("DOMContentLoaded", init);
