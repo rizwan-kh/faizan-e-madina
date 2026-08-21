@@ -84,16 +84,15 @@ body {
   z-index: -2;
   pointer-events: none;
   opacity: 0.5;
-  mix-blend-mode: screen;   /* clouds catch light from the sky behind them */
   animation: drift 120s linear infinite alternate;
 }
 @keyframes drift {
-  from { transform: translate3d(-3%, 0, 0) scale(1.05); }
+  from { transform: translate3d(-3%, 0, 0) scale(1.06); }
   to   { transform: translate3d(3%, 0, 0)  scale(1.12); }
 }
-/* clouds soften in bright daylight, glow warmer at sunset */
-body[data-period="dhuhr"] .clouds { opacity: 0.42; mix-blend-mode: soft-light; }
-body[data-period="maghrib"] .clouds { opacity: 0.6; }
+/* clouds soften in bright daylight, thicken a touch at sunset */
+body[data-period="dhuhr"] .clouds { opacity: 0.4; }
+body[data-period="maghrib"] .clouds { opacity: 0.58; }
 /* night starfield (only meaningful for the darker palettes) */
 .hero .stars {
   position: absolute;
