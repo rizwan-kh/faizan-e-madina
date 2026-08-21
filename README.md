@@ -60,10 +60,15 @@ the values in `js/data.js` if the sheet can't be reached.
    | Isha            | 10:05 PM  |
    | Jummah Khutbah  | 1:30 PM   |
    | Jummah Iqamah   | 2:05 PM   |
+   | Announcement 1  | Eid prayer at 8:00 AM |
+   | Announcement 2  | Parking at the rear lot |
 
    - Times can be 12-hour (`6:00 AM`) **or** 24-hour (`06:00`, `18:45`) — both work.
    - **Maghrib** accepts either a fixed time (`8:19 PM` / `20:19`) **or** a bare
      number of minutes after sunset (`4`), which then adjusts automatically each day.
+   - **Announcements**: add rows labelled `Announcement 1`, `Announcement 2`, …
+     (or `Notice`). Each row's message shows on the board. If the sheet has any
+     announcement rows, they replace the built-in ones; remove the rows to hide them.
 2. **File → Share → Publish to web → (Comma-separated values .csv) → Publish.**
    Copy the CSV link it gives you.
 3. Paste that link into `config.sheetCsvUrl` in `js/data.js`, then commit/push.

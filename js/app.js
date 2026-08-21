@@ -127,6 +127,13 @@ async function fetchAthanTimes() {
 //  Overrides only Iqamah/Jummah — never the API-driven Athan times.
 // -----------------------------------------------------------
 
+// Escape text coming from the (shared, editable) sheet before inserting as HTML
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+  ));
+}
+
 // Minimal CSV parser (handles quoted fields and commas within quotes)
 function parseCSV(text) {
   const rows = [];
@@ -176,6 +183,7 @@ async function fetchSheetTimes() {
 
   let applied = false;
   const jummah = { athan: null, iqamah: null };
+  const sheetAnns = [];
 
   rows.forEach((r) => {
     const key = (r[0] || "").trim().toLowerCase();
@@ -189,12 +197,20 @@ async function fetchSheetTimes() {
     else if (key.startsWith("isha")) { prayerTimes.isha.iqamah = iqamahFromCell(val); applied = true; }
     else if (key.includes("khutbah")) { jummah.athan = val; applied = true; }
     else if (key.includes("jumm") || key.includes("jumu")) { jummah.iqamah = val; applied = true; }
+    else if (key.startsWith("announce") || key.startsWith("notice") || key.startsWith("message")) { sheetAnns.push(val); applied = true; }
   });
 
   // Update the (first) Jummah entry if the sheet provided values
   if ((jummah.athan || jummah.iqamah) && jummahTimes[0]) {
     if (jummah.athan) jummahTimes[0].athan = toClock12(jummah.athan);
     if (jummah.iqamah) jummahTimes[0].iqamah = toClock12(jummah.iqamah);
+  }
+
+  // If the sheet has any announcement rows, they replace the built-in ones.
+  if (sheetAnns.length) {
+    announcements.splice(0, announcements.length, ...sheetAnns.map((text) => ({
+      active: true, icon: "📢", title: "", body: escapeHtml(text),
+    })));
   }
 
   return applied;
@@ -485,7 +501,7 @@ function renderAnnouncements() {
     item.innerHTML = `
       <span class="a-icon" aria-hidden="true">${a.icon || "•"}</span>
       <div>
-        <p class="a-title">${a.title}</p>
+        ${a.title ? `<p class="a-title">${a.title}</p>` : ""}
         <p class="a-body">${a.body}</p>
       </div>
     `;
