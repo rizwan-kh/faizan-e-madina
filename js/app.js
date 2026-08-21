@@ -169,16 +169,64 @@ function renderDate() {
   });
   document.getElementById("gregorianDate").textContent = gregorian;
 
-  // Hijri date via the built-in Islamic calendar (no library needed)
+  // Hijri date via the built-in Islamic calendar (no library needed).
+  // Use full traditional month names for the complete date.
   try {
-    const hijri = new Intl.DateTimeFormat("en-US-u-ca-islamic-umalqura", {
-      timeZone: TZ,
-      day: "numeric", month: "long", year: "numeric",
-    }).format(now);
-    document.getElementById("hijriDate").textContent = hijri;
+    const parts = new Intl.DateTimeFormat("en-US-u-ca-islamic-umalqura", {
+      timeZone: TZ, day: "numeric", month: "numeric", year: "numeric",
+    }).formatToParts(now);
+    const o = {};
+    parts.forEach((p) => (o[p.type] = p.value));
+    const name = HIJRI_MONTHS[parseInt(o.month, 10) - 1] || "";
+    document.getElementById("hijriDate").textContent =
+      `${o.day} ${name} ${o.year} AH`;
   } catch (e) {
     document.getElementById("hijriDate").textContent = "";
   }
+}
+
+// Full Islamic month names (1 = Muharram … 12 = Dhu al-Hijjah)
+const HIJRI_MONTHS = [
+  "Muharram", "Safar", "Rabiʻ al-Awwal", "Rabiʻ al-Thani",
+  "Jumada al-Ula", "Jumada al-Akhirah", "Rajab", "Shaʻban",
+  "Ramadan", "Shawwal", "Dhu al-Qaʻdah", "Dhu al-Hijjah",
+];
+
+// -----------------------------------------------------------
+//  Moon phase — shape reflects the Hijri day of the month
+// -----------------------------------------------------------
+// Build the SVG path for the illuminated part of the moon disc.
+// f = illuminated fraction (0 new … 1 full); waxing = lit side on the right.
+function moonLitPath(cx, cy, R, f, waxing) {
+  f = Math.max(0, Math.min(1, f));
+  const rTerm = R * (1 - 2 * f);          // terminator ellipse x-radius (signed)
+  const outer = waxing ? 1 : 0;
+  const inner = rTerm > 0 ? outer : 1 - outer;
+  const top = `${cx} ${cy - R}`;
+  const bot = `${cx} ${cy + R}`;
+  return `M ${top} A ${R} ${R} 0 0 ${outer} ${bot} ` +
+         `A ${Math.abs(rTerm).toFixed(2)} ${R} 0 0 ${inner} ${top} Z`;
+}
+
+function renderMoon() {
+  const lit = document.getElementById("moonLit");
+  if (!lit) return;
+
+  // Hijri day of month (1..29/30) in the masjid timezone
+  let day = 15;
+  try {
+    day = parseInt(new Intl.DateTimeFormat("en-US-u-ca-islamic-umalqura", {
+      timeZone: "America/Toronto", day: "numeric",
+    }).format(new Date()), 10) || 15;
+  } catch (e) {}
+
+  const SYNODIC = 29.53;
+  const age = day;                         // Hijri date ≈ age of the visible moon
+  const f = (1 - Math.cos((2 * Math.PI * age) / SYNODIC)) / 2;
+  const waxing = (age % SYNODIC) < SYNODIC / 2;
+
+  // Must match the <circle> in index.html
+  lit.setAttribute("d", moonLitPath(918, 30, 13, f, waxing));
 }
 
 // -----------------------------------------------------------
@@ -369,6 +417,7 @@ function setTimesSource(msg) {
 async function init() {
   renderStatic();
   renderDate();
+  renderMoon();
   startClock();
 
   // Try to load live Athan (start) times before first render.

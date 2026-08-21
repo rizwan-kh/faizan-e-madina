@@ -66,14 +66,34 @@ body {
     radial-gradient(120% 90% at 78% 8%, var(--sky-1) 0%, var(--sky-2) 45%, var(--sky-3) 100%);
   transition: background 1.6s var(--ease);
 }
-/* soft haze near the horizon, tinted by the accent */
+/* soft glow near the horizon, tinted by the accent */
 .hero .sky::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(80% 40% at 70% 78%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%);
+  background: radial-gradient(90% 45% at 68% 82%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%);
   opacity: 0.7;
 }
+/* procedural clouds (SVG fractal noise) behind the minaret */
+.hero .clouds {
+  position: absolute;
+  left: 0; right: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  z-index: -2;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: screen;   /* clouds catch light from the sky behind them */
+  animation: drift 120s linear infinite alternate;
+}
+@keyframes drift {
+  from { transform: translate3d(-3%, 0, 0) scale(1.05); }
+  to   { transform: translate3d(3%, 0, 0)  scale(1.12); }
+}
+/* clouds soften in bright daylight, glow warmer at sunset */
+body[data-period="dhuhr"] .clouds { opacity: 0.42; mix-blend-mode: soft-light; }
+body[data-period="maghrib"] .clouds { opacity: 0.6; }
 /* night starfield (only meaningful for the darker palettes) */
 .hero .stars {
   position: absolute;
@@ -108,6 +128,16 @@ body[data-period="asr"] .stars { opacity: 0; }
   display: flex;
   flex-direction: column;
   animation: fadeIn 1s var(--ease) both;
+}
+/* full-width scrim so text stays legible over bright cloud patches */
+.hero .scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(to top right, rgba(6,10,14,0.6), rgba(6,10,14,0) 52%),
+    linear-gradient(to top, rgba(6,10,14,0.55), rgba(6,10,14,0) 30%);
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }

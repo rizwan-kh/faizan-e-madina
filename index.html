@@ -16,7 +16,33 @@
   <section class="hero" id="hero" aria-label="Current time and next prayer">
     <!-- Time-of-day sky + mosque silhouette (pure CSS/SVG, no photos) -->
     <div class="sky" aria-hidden="true"></div>
+    <svg class="clouds" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <filter id="cloudNoise" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.0045 0.011" numOctaves="6" seed="14" stitchTiles="stitch" result="n"/>
+          <!-- white body, alpha carved from the noise -> soft cloud clumps -->
+          <feColorMatrix in="n" type="matrix"
+            values="0 0 0 0 1
+                    0 0 0 0 1
+                    0 0 0 0 1
+                    0 0 0 1.7 -0.62" result="c"/>
+          <feComponentTransfer in="c" result="c2">
+            <feFuncA type="gamma" amplitude="1" exponent="1.7" offset="0"/>
+          </feComponentTransfer>
+          <feGaussianBlur in="c2" stdDeviation="1.1"/>
+        </filter>
+        <linearGradient id="cloudFade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+          <stop offset="0.42" stop-color="#fff" stop-opacity="1"/>
+          <stop offset="0.9" stop-color="#fff" stop-opacity="1"/>
+          <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+        </linearGradient>
+        <mask id="cloudMask"><rect width="1200" height="600" fill="url(#cloudFade)"/></mask>
+      </defs>
+      <rect x="-100" y="0" width="1400" height="600" filter="url(#cloudNoise)" mask="url(#cloudMask)"/>
+    </svg>
     <div class="stars" aria-hidden="true"></div>
+    <div class="scrim" aria-hidden="true"></div>
     <svg class="skyline" viewBox="0 0 1200 320" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
       <defs>
         <linearGradient id="silh" x1="0" y1="0" x2="0" y2="1">
@@ -43,13 +69,17 @@
         <rect x="900" y="112" width="12" height="26"/>        <!-- upper shaft -->
         <path d="M906 60 L900 114 H912 Z"/>                   <!-- tapering conical cap -->
         <circle cx="906" cy="55" r="3.6"/>                    <!-- finial ball -->
-        <path d="M906 38 a9 9 0 1 0 0 17 a7 7 0 1 1 0 -17z"/> <!-- crescent -->
 
         <!-- main dome (far right) -->
         <path d="M1000 320 V250 a70 70 0 0 1 140 0 V320 Z"/>
         <rect x="1064" y="150" width="12" height="30" rx="2"/>
         <circle cx="1070" cy="146" r="6"/>
-        <path d="M1070 130 a7 7 0 1 0 0 14 a5.5 5.5 0 1 1 0 -14z"/>
+      </g>
+
+      <!-- Moon in the sky — phase set by JS from the Hijri day of month -->
+      <g class="moon" aria-hidden="true">
+        <circle cx="918" cy="30" r="13" fill="#f2efe6" opacity="0.07"/><!-- faint dark side -->
+        <path id="moonLit" fill="#f4f1e8" opacity="0.96"/><!-- illuminated part -->
       </g>
     </svg>
 
