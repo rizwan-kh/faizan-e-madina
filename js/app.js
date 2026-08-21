@@ -117,25 +117,43 @@ async function fetchAthanTimes() {
 //  Static content from config
 // -----------------------------------------------------------
 function renderStatic() {
-  document.getElementById("orgName").textContent = config.organizationName;
-  document.getElementById("location").textContent = config.location;
+  // Show the full address as the location line (with Directions beside it)
+  document.getElementById("location").textContent = config.address || config.location;
 
-  // Full address + Google Maps directions button
-  const addrEl = document.getElementById("address");
   const dirBtn = document.getElementById("directionsBtn");
-  if (config.address) {
-    addrEl.textContent = config.address;
+  if (config.address || config.mapsUrl) {
     dirBtn.href = config.mapsUrl
       ? config.mapsUrl
       : "https://www.google.com/maps/dir/?api=1&destination=" +
         encodeURIComponent(config.address);
   } else {
-    addrEl.style.display = "none";
     dirBtn.style.display = "none";
   }
 
   const link = document.getElementById("footerLink");
-  link.href = config.websiteUrl;
+  if (link) link.href = config.websiteUrl;
+}
+
+// -----------------------------------------------------------
+//  Live clock (updates every second, masjid timezone)
+// -----------------------------------------------------------
+function startClock() {
+  const clockEl = document.getElementById("liveClock");
+  const secEl = document.getElementById("clockSec");
+  if (!clockEl) return;
+
+  function tick() {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Toronto",
+      hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true,
+    }).formatToParts(new Date());
+    const o = {};
+    parts.forEach((p) => (o[p.type] = p.value));
+    clockEl.textContent = `${o.hour}:${o.minute}`;
+    if (secEl) secEl.textContent = o.dayPeriod; // AM / PM
+  }
+  tick();
+  setInterval(tick, 1000);
 }
 
 // -----------------------------------------------------------
@@ -153,11 +171,10 @@ function renderDate() {
 
   // Hijri date via the built-in Islamic calendar (no library needed)
   try {
-    let hijri = new Intl.DateTimeFormat("en-US-u-ca-islamic-umalqura", {
+    const hijri = new Intl.DateTimeFormat("en-US-u-ca-islamic-umalqura", {
       timeZone: TZ,
       day: "numeric", month: "long", year: "numeric",
     }).format(now);
-    if (!/AH$/.test(hijri)) hijri += " AH";
     document.getElementById("hijriDate").textContent = hijri;
   } catch (e) {
     document.getElementById("hijriDate").textContent = "";
@@ -179,16 +196,8 @@ function renderPrayerCards() {
     card.dataset.prayer = key;
     card.innerHTML = `
       <span class="p-name">${prayerNames[key]}</span>
-      <div class="p-times">
-        <div class="p-time-col">
-          <span class="p-time-label">Begins</span>
-          <span class="p-time">${p.athan}</span>
-        </div>
-        <div class="p-time-col">
-          <span class="p-time-label">Iqamah</span>
-          <span class="p-time p-iqamah">${resolveIqamah(p)}</span>
-        </div>
-      </div>
+      <span class="p-iqamah">${resolveIqamah(p)}</span>
+      <span class="p-begins">begins ${p.athan}</span>
     `;
     grid.appendChild(card);
   });
@@ -244,24 +253,24 @@ function updateNextPrayer() {
   const inProgress = !isTomorrow && nowMin >= active.athanMin;
 
   const labelEl = document.querySelector(".next-label");
-  document.getElementById("nextName").textContent = `${active.name} — ${active.athan}`;
+  document.getElementById("nextName").textContent = active.name;
 
   let sub;
   if (inProgress) {
-    if (labelEl) labelEl.textContent = "Current Prayer";
+    if (labelEl) labelEl.textContent = "Jama'ah Now";
     if (active.iqamahMin !== null && nowMin < active.iqamahMin) {
       const d = active.iqamahMin - nowMin;
-      sub = `Iqamah at ${active.iqamahStr}` + (d <= 60 ? ` · ${d}m` : "");
+      sub = `Iqamah at ${active.iqamahStr} · in ${d} min`;
     } else {
-      sub = "In progress";
+      sub = `Iqamah ${active.iqamahStr} · in progress`;
     }
   } else {
-    if (labelEl) labelEl.textContent = "Next Prayer";
+    if (labelEl) labelEl.textContent = "Next Jama'ah";
     let mins = active.athanMin - nowMin;
     if (isTomorrow) mins = 1440 - nowMin + active.athanMin;
     const h = Math.floor(mins / 60);
     const m = mins % 60;
-    sub = h > 0 ? `${h}h ${m}m remaining` : `${m}m remaining`;
+    sub = h > 0 ? `in ${h} hr ${m} min` : `in ${m} min`;
   }
   document.getElementById("nextRemaining").textContent = sub;
 
@@ -289,21 +298,9 @@ function updateNextPrayer() {
   const bar = document.getElementById("nextProgressBar");
   if (bar) bar.style.width = (progress * 100).toFixed(1) + "%";
 
-  // Highlight the active card
+  // Highlight the active prayer (accent color via CSS, no badge)
   document.querySelectorAll(".prayer-card").forEach((card) => {
-    const isActive = card.dataset.prayer === active.key;
-    card.classList.toggle("is-next", isActive);
-    let badge = card.querySelector(".badge-next");
-    if (isActive) {
-      if (!badge) {
-        badge = document.createElement("span");
-        badge.className = "badge-next";
-        card.querySelector(".p-name").appendChild(badge);
-      }
-      badge.textContent = inProgress ? "Now" : "Next";
-    } else if (badge) {
-      badge.remove();
-    }
+    card.classList.toggle("is-next", card.dataset.prayer === active.key);
   });
 }
 
@@ -372,6 +369,7 @@ function setTimesSource(msg) {
 async function init() {
   renderStatic();
   renderDate();
+  startClock();
 
   // Try to load live Athan (start) times before first render.
   if (config.api && config.api.enabled) {
