@@ -19,15 +19,21 @@
 
   --serif: 'Cormorant Garamond', Georgia, serif;
   --sans:  'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --arabic: 'Amiri Quran', 'Amiri', serif;   /* calligraphic Arabic (Mushaf naskh) */
   --ease:  cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-/* ---- Time-of-day palettes ---- */
-body[data-period="fajr"]    { --sky-1:#243456; --sky-2:#141d38; --sky-3:#0a1020; --accent:#b9c3e6; }
-body[data-period="dhuhr"]   { --sky-1:#5b83a6; --sky-2:#2d537a; --sky-3:#12314a; --accent:#ffe6a3; }
-body[data-period="asr"]     { --sky-1:#7a7a5f; --sky-2:#4a4a38; --sky-3:#23231a; --accent:#f0c869; }
-body[data-period="maghrib"] { --sky-1:#8a4a37; --sky-2:#4a2540; --sky-3:#231324; --accent:#ffb578; }
-body[data-period="isha"]    { --sky-1:#1a2a34; --sky-2:#0e1a26; --sky-3:#070d16; --accent:#c9a893; }
+/* ---- Time-of-day palettes (driven by the real clock + sunrise/sunset) ---- */
+/* night: before Fajr and after dusk — deep, starry */
+body[data-period="night"]     { --sky-1:#16233a; --sky-2:#0d1826; --sky-3:#070d16; --accent:#9fc3cf; }
+/* dawn: Fajr → sunrise — indigo warming to rose */
+body[data-period="dawn"]      { --sky-1:#4a5a86; --sky-2:#6a4d6e; --sky-3:#241f3a; --accent:#ecc2d0; }
+/* day: sunrise → Asr — bright blue sky */
+body[data-period="day"]       { --sky-1:#8bb8e0; --sky-2:#537ba9; --sky-3:#2f5478; --accent:#ffd98a; }
+/* afternoon: Asr → pre-sunset — warm, hazy gold */
+body[data-period="afternoon"] { --sky-1:#c6b487; --sky-2:#7f6f56; --sky-3:#3c3326; --accent:#ffcf7a; }
+/* sunset: around Maghrib — coral to violet */
+body[data-period="sunset"]    { --sky-1:#d07a4a; --sky-2:#7a3f52; --sky-3:#241a34; --accent:#ffb878; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
@@ -36,9 +42,23 @@ body {
   font-family: var(--sans);
   color: var(--ink);
   background: var(--bg);
+  position: relative;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+}
+/* Subtle time-of-day ambient behind the whole page, so sections below the
+   hero share the same mood instead of sitting on flat black. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 70% at 50% 0%,   color-mix(in srgb, var(--sky-2) 45%, transparent), transparent 55%),
+    radial-gradient(120% 60% at 50% 100%, color-mix(in srgb, var(--sky-3) 55%, transparent), transparent 65%);
+  transition: background 1.6s var(--ease);
 }
 
 .container {
@@ -91,8 +111,9 @@ body {
   to   { transform: translate3d(3%, 0, 0)  scale(1.12); }
 }
 /* clouds soften in bright daylight, thicken a touch at sunset */
-body[data-period="dhuhr"] .clouds { opacity: 0.4; }
-body[data-period="maghrib"] .clouds { opacity: 0.58; }
+body[data-period="day"] .clouds { opacity: 0.38; }
+body[data-period="afternoon"] .clouds { opacity: 0.42; }
+body[data-period="sunset"] .clouds { opacity: 0.58; }
 /* night starfield (only meaningful for the darker palettes) */
 .hero .stars {
   position: absolute;
@@ -108,8 +129,9 @@ body[data-period="maghrib"] .clouds { opacity: 0.58; }
     radial-gradient(1.4px 1.4px at 48% 18%, rgba(255,255,255,0.6), transparent);
   opacity: 0.5;
 }
-body[data-period="dhuhr"] .stars,
-body[data-period="asr"] .stars { opacity: 0; }
+body[data-period="day"] .stars,
+body[data-period="afternoon"] .stars,
+body[data-period="sunset"] .stars { opacity: 0; }
 .hero .skyline {
   position: absolute;
   left: 0; right: 0; bottom: 0;
@@ -397,29 +419,30 @@ main.container { padding-top: 8px; padding-bottom: 8px; }
 .announcement .a-title { font-weight: 700; color: var(--ink); margin-bottom: 3px; }
 .announcement .a-body { color: var(--ink-dim); font-size: 0.92rem; }
 
-/* ===================== SHAHADA BANNER (top of page) ===================== */
+/* ===================== SHAHADA (top of hero, over the sky) ===================== */
 .shahada-bar {
-  background: linear-gradient(180deg, #0c1216 0%, var(--bg) 100%);
-  border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, var(--panel-line));
   text-align: center;
-  padding: 13px 16px 11px;
+  padding: 4px 4px 18px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
 }
 .sb-ar {
-  font-family: 'Amiri', serif;
+  font-family: var(--arabic);
   color: var(--ink);
-  font-size: 1.35rem;
-  line-height: 1.7;
+  font-size: 1.5rem;
+  line-height: 2.05;
+  text-shadow: 0 1px 12px rgba(0,0,0,0.45);
 }
 .sb-tr {
-  color: var(--accent);
+  color: color-mix(in srgb, var(--accent) 80%, #ffffff);
   font-size: 0.68rem;
   letter-spacing: 0.8px;
   font-style: italic;
-  margin-top: 3px;
-  opacity: 0.85;
+  margin-top: 4px;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.4);
 }
 @media (min-width: 760px) {
-  .sb-ar { font-size: 1.7rem; }
+  .sb-ar { font-size: 1.85rem; }
   .sb-tr { font-size: 0.78rem; letter-spacing: 1.2px; }
 }
 
@@ -453,18 +476,18 @@ main.container { padding-top: 8px; padding-bottom: 8px; }
   margin-bottom: 16px;
 }
 .faith-ar {
-  font-family: 'Amiri', serif;
-  font-size: 1.7rem;
-  line-height: 1.95;
+  font-family: var(--arabic);
+  font-size: 1.5rem;
+  line-height: 2.05;
   color: var(--ink);
   margin-bottom: 12px;
 }
-.faith-card.primary .faith-ar { font-size: 2.15rem; }
+.faith-card.primary .faith-ar { font-size: 1.5rem; }
 .faith-tr { font-style: italic; color: var(--ink-dim); font-size: 0.95rem; margin-bottom: 8px; }
 .faith-en { color: var(--ink-dim); font-size: 0.92rem; }
 @media (min-width: 760px) {
-  .faith-card.primary .faith-ar { font-size: 2.6rem; }
-  .faith-card .faith-ar { font-size: 2rem; }
+  .faith-card.primary .faith-ar { font-size: 1.85rem; }
+  .faith-card .faith-ar { font-size: 1.85rem; }
 }
 
 /* ===================== FIVE PILLARS ===================== */
@@ -496,13 +519,17 @@ main.container { padding-top: 8px; padding-bottom: 8px; }
 .pillar-num {
   width: 26px; height: 26px;
   border-radius: 50%;
-  border: 1px solid var(--accent);
-  color: var(--accent);
+  border: 1px solid var(--panel-line);
+  color: var(--ink-dim);
   display: flex; align-items: center; justify-content: center;
   font-size: 0.78rem; font-weight: 700;
+  transition: color 0.18s var(--ease), border-color 0.18s var(--ease);
 }
 .pillar-name { font-weight: 700; font-size: 1rem; }
-.pillar-ar { font-family: 'Amiri', serif; font-size: 1.25rem; color: var(--accent); }
+.pillar-ar { font-family: var(--arabic); font-size: 1.5rem; line-height: 1.6; color: var(--ink-dim); transition: color 0.18s var(--ease); }
+/* accent appears only on interaction, matching the rest of the page */
+.pillar:hover .pillar-num, .pillar:focus-visible .pillar-num, .pillar.open .pillar-num { border-color: var(--accent); color: var(--accent); }
+.pillar:hover .pillar-ar, .pillar:focus-visible .pillar-ar, .pillar.open .pillar-ar { color: var(--accent); }
 
 /* Tooltip */
 .pillar-tip {

@@ -424,6 +424,24 @@ function renderSunTimes() {
 // -----------------------------------------------------------
 //  Next / current prayer highlight + countdown
 // -----------------------------------------------------------
+// The sky's mood, based on the actual clock and sunrise/sunset — so mornings
+// look like day, afternoons warm, Maghrib glows, and nights are dark. Returns
+// one of: night | dawn | day | afternoon | sunset.
+function currentSkyPeriod() {
+  const now = masjidNowMinutes();
+  const fajr = timeToMinutes(prayerTimes.fajr.athan);
+  const sunrise = timeToMinutes(sunTimes.sunrise);
+  const asr = timeToMinutes(prayerTimes.asr.athan);
+  const sunset = timeToMinutes(sunTimes.sunset); // == Maghrib start
+  if (fajr === null || sunrise === null || asr === null || sunset === null) return "night";
+  if (now < fajr) return "night";
+  if (now < sunrise) return "dawn";
+  if (now < asr) return "day";
+  if (now < sunset - 40) return "afternoon";
+  if (now < sunset + 25) return "sunset";
+  return "night";
+}
+
 // Keep highlighting a prayer until this many minutes after its Iqamah,
 // so the banner doesn't jump to the next prayer while people are still
 // praying the current one.
@@ -486,8 +504,8 @@ function updateNextPrayer() {
   }
   document.getElementById("nextRemaining").textContent = sub;
 
-  // Ambient time-of-day theme
-  document.body.dataset.period = isTomorrow ? "isha" : active.key;
+  // Ambient theme follows the real time of day (not the next prayer)
+  document.body.dataset.period = currentSkyPeriod();
 
   // Countdown progress bar (fills from the previous anchor to the next event)
   let start, end;
