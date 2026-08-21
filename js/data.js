@@ -42,7 +42,7 @@ const config = {
   // admins can update Iqamah/Jummah times by editing the sheet (no code).
   // Leave "" to use only the fixed values in this file.
   // See README ("Let admins edit times via Google Sheets") for setup steps.
-  sheetCsvUrl: "",
+  sheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRvrOJbcI7kOhz4Yx4QK8nc7PTcgOK6jmoeL7m4yVcsx56mT4PMLzOsBz8jOC2OYMofYQ-ckq81oAsK/pub?gid=0&single=true&output=csv",
 
   // ---- Automatic prayer START times (Athan) ----
   // Start times are fetched live from the free Aladhan API for the

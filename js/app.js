@@ -148,13 +148,24 @@ function parseCSV(text) {
   return rows;
 }
 
-// Turn a sheet value into an iqamah: a clock time string, or an offset object
+// Normalise a sheet time to the board's 12-hour format.
+// Accepts "6:00 AM" (as-is), "06:00"/"18:45" (24-hour → 12-hour).
+function toClock12(v) {
+  // Strip seconds if a spreadsheet exports them (06:00:00 → 06:00)
+  const val = v.trim().replace(/(\d{1,2}:\d{2}):\d{2}/, "$1");
+  if (/[ap]\.?m\.?/i.test(val)) return val.toUpperCase().replace(/\s+/g, " "); // already 12h
+  if (/^\d{1,2}:\d{2}$/.test(val)) return to12Hour(val);                        // 24h → 12h
+  return val;
+}
+
+// Turn a sheet value into an iqamah: a clock time string, or an offset object.
+// A value with a colon (or AM/PM) is a fixed time; a bare number is an offset.
 function iqamahFromCell(v) {
   const val = v.trim();
-  if (/[ap]\.?m\.?/i.test(val)) return val;              // has AM/PM → fixed time
-  const m = val.match(/^\+?\s*(\d{1,3})\b/);             // leading number → offset
+  if (val.includes(":") || /[ap]\.?m\.?/i.test(val)) return toClock12(val);
+  const m = val.match(/^\+?\s*(\d{1,3})$/);              // bare number → offset (minutes)
   if (m) return { offsetFromAthan: parseInt(m[1], 10) };
-  return val;                                            // fall back to raw string
+  return val;
 }
 
 async function fetchSheetTimes() {
@@ -182,8 +193,8 @@ async function fetchSheetTimes() {
 
   // Update the (first) Jummah entry if the sheet provided values
   if ((jummah.athan || jummah.iqamah) && jummahTimes[0]) {
-    if (jummah.athan) jummahTimes[0].athan = jummah.athan;
-    if (jummah.iqamah) jummahTimes[0].iqamah = jummah.iqamah;
+    if (jummah.athan) jummahTimes[0].athan = toClock12(jummah.athan);
+    if (jummah.iqamah) jummahTimes[0].iqamah = toClock12(jummah.iqamah);
   }
 
   return applied;
