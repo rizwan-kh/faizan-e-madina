@@ -9,9 +9,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=3" />
+  <link rel="stylesheet" href="css/styles.css?v=4" />
 </head>
 <body>
+  <!-- ===================== SHAHADA BANNER (top of page) ===================== -->
+  <div class="shahada-bar" role="note" aria-label="Shahada — Declaration of Faith">
+    <p class="sb-ar" lang="ar" dir="rtl">أَشْهَدُ أَنْ لَا إِلٰهَ إِلَّا اللّٰهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ اللّٰهِ</p>
+    <p class="sb-tr">Ash-hadu an lā ilāha illa-llāh · wa ash-hadu anna Muḥammadan rasūlu-llāh</p>
+  </div>
+
   <!-- ===================== CINEMATIC HERO ===================== -->
   <section class="hero" id="hero" aria-label="Current time and next prayer">
     <!-- Time-of-day sky + mosque silhouette (pure CSS/SVG, no photos) -->
@@ -150,16 +156,9 @@
       <div id="announcementsList"><!-- filled by JS --></div>
     </section>
 
-    <!-- ===================== FAITH: SHAHADA + SALAWAT ===================== -->
-    <section class="faith" aria-label="Shahada and Salawat">
+    <!-- ===================== SALAWAT ===================== -->
+    <section class="faith" aria-label="Salawat">
       <div class="faith-card primary">
-        <span class="faith-kicker">Shahādah · Declaration of Faith</span>
-        <p class="faith-ar" lang="ar" dir="rtl">أَشْهَدُ أَنْ لَا إِلٰهَ إِلَّا اللّٰهُ وَأَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ اللّٰهِ</p>
-        <p class="faith-tr">Ash-hadu an lā ilāha illa-llāh, wa ash-hadu anna Muḥammadan rasūlu-llāh</p>
-        <p class="faith-en">“I bear witness that there is no god but Allah, and I bear witness that Muhammad is the Messenger of Allah.”</p>
-      </div>
-
-      <div class="faith-card">
         <span class="faith-kicker">Ṣalawāt · Blessings upon the Prophet ﷺ</span>
         <p class="faith-ar" lang="ar" dir="rtl">اَللّٰهُمَّ صَلِّ عَلٰى مُحَمَّدٍ وَّعَلٰٓى اٰلِ مُحَمَّدٍ</p>
         <p class="faith-tr">Allāhumma ṣalli ʿalā Muḥammadin wa ʿalā āli Muḥammad</p>
@@ -218,7 +217,7 @@
     </div>
   </footer>
 
-  <script src="js/data.js?v=3"></script>
-  <script src="js/app.js?v=3"></script>
+  <script src="js/data.js?v=4"></script>
+  <script src="js/app.js?v=4"></script>
 </body>
 </html>
