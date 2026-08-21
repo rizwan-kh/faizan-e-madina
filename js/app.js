@@ -353,18 +353,39 @@ function renderMoon() {
 // -----------------------------------------------------------
 const CARD_ORDER = ["fajr", "dhuhr", "asr", "maghrib", "isha"];
 
+// Is today Friday in the masjid's timezone? (Jummah replaces Dhuhr.)
+function isJummahDay() {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Toronto", weekday: "short",
+  }).format(new Date()) === "Fri";
+}
+
 function renderPrayerCards() {
   const grid = document.getElementById("prayerGrid");
   grid.innerHTML = "";
+  const friday = isJummahDay();
   CARD_ORDER.forEach((key) => {
     const p = prayerTimes[key];
+    let name = prayerNames[key];
+    let iqamah = resolveIqamah(p);
+    let beginsLabel = "begins";
+    let begins = p.athan;
+
+    // On Friday the Dhuhr slot shows Jummah (Khutbah + Jummah Iqamah).
+    if (key === "dhuhr" && friday && jummahTimes[0]) {
+      name = jummahTimes[0].label || "Jummah";
+      iqamah = jummahTimes[0].iqamah;
+      beginsLabel = "khutbah";
+      begins = jummahTimes[0].athan;
+    }
+
     const card = document.createElement("div");
     card.className = "prayer-card";
     card.dataset.prayer = key;
     card.innerHTML = `
-      <span class="p-name">${prayerNames[key]}</span>
-      <span class="p-iqamah">${resolveIqamah(p)}</span>
-      <span class="p-begins">begins ${p.athan}</span>
+      <span class="p-name">${name}</span>
+      <span class="p-iqamah">${iqamah}</span>
+      <span class="p-begins">${beginsLabel} ${begins}</span>
     `;
     grid.appendChild(card);
   });
@@ -420,7 +441,11 @@ function updateNextPrayer() {
   const inProgress = !isTomorrow && nowMin >= active.athanMin;
 
   const labelEl = document.querySelector(".next-label");
-  document.getElementById("nextName").textContent = active.name;
+  // On Friday, the Dhuhr slot is Jummah — show that name in the hero too.
+  const displayName = (active.key === "dhuhr" && isJummahDay() && jummahTimes[0])
+    ? (jummahTimes[0].label || "Jummah")
+    : active.name;
+  document.getElementById("nextName").textContent = displayName;
 
   let sub;
   if (inProgress) {
@@ -475,6 +500,11 @@ function updateNextPrayer() {
 //  Jummah
 // -----------------------------------------------------------
 function renderJummah() {
+  // On Friday, Jummah already shows in the prayer strip (in place of Dhuhr),
+  // so hide the separate section to avoid duplication.
+  const section = document.querySelector("section.jummah");
+  if (section) section.style.display = isJummahDay() ? "none" : "";
+
   const grid = document.getElementById("jummahGrid");
   grid.innerHTML = "";
   jummahTimes.forEach((j) => {
