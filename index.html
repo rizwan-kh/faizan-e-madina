@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Daily Islamic prayer times and Jummah times for Faizan-E-Madina, Hamilton, Ontario." />
+  <meta name="theme-color" content="#14563a" />
+  <title>Prayer Times — Faizan-E-Madina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- ===================== HEADER ===================== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" width="40" height="40" role="img" aria-label="Crescent and star">
+            <circle cx="24" cy="24" r="23" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
+            <path d="M30 12a13 13 0 1 0 0 24 10 10 0 1 1 0-24z" fill="currentColor"/>
+            <path d="M33 20l1.4 3 3.3.3-2.5 2.2.8 3.2-2.9-1.7-2.9 1.7.8-3.2-2.5-2.2 3.3-.3z" fill="currentColor"/>
+          </svg>
+        </span>
+        <span class="brand-name">Faizan-E-Madina</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- ===================== LOCATION + DATE ===================== -->
+    <section class="intro" aria-label="Location and date">
+      <h1 class="page-title">Prayer Times</h1>
+      <p class="org-name" id="orgName">Faizan-E-Madina</p>
+      <p class="location" id="location">Hamilton, Ontario</p>
+      <p class="address" id="address"></p>
+      <a class="directions-btn" id="directionsBtn" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor">
+          <path d="M21.7 11.3l-9-9a1 1 0 0 0-1.4 0l-9 9a1 1 0 0 0 0 1.4l9 9a1 1 0 0 0 1.4 0l9-9a1 1 0 0 0 0-1.4zM14 14.5V12h-4v3H8v-4a1 1 0 0 1 1-1h5V7.5l3.5 3.5z"/>
+        </svg>
+        Get Directions
+      </a>
+      <div class="date-block">
+        <p class="date-gregorian" id="gregorianDate">—</p>
+        <p class="date-hijri" id="hijriDate">—</p>
+      </div>
+    </section>
+
+    <!-- ===================== NEXT PRAYER ===================== -->
+    <section class="next-prayer" id="nextPrayer" aria-live="polite">
+      <span class="next-label">Next Prayer</span>
+      <p class="next-name" id="nextName">—</p>
+      <p class="next-remaining" id="nextRemaining"></p>
+      <div class="next-progress" aria-hidden="true"><span id="nextProgressBar"></span></div>
+    </section>
+
+    <!-- ===================== DAILY PRAYERS ===================== -->
+    <section aria-label="Daily prayer times">
+      <div class="prayer-grid" id="prayerGrid"><!-- filled by JS --></div>
+
+      <!-- Sunrise / Sunset (informational, not prayers) -->
+      <div class="sun-strip" aria-label="Sunrise and sunset times">
+        <div class="sun-item">
+          <span class="sun-ico" aria-hidden="true">☀️</span>
+          <span class="sun-lbl">Sunrise</span>
+          <span class="sun-time" id="sunriseTime">—</span>
+        </div>
+        <div class="sun-item">
+          <span class="sun-ico" aria-hidden="true">🌇</span>
+          <span class="sun-lbl">Sunset <span class="sun-note">(Maghrib)</span></span>
+          <span class="sun-time" id="sunsetTime">—</span>
+        </div>
+      </div>
+
+      <p class="times-source" id="timesSource" aria-live="polite"></p>
+    </section>
+
+    <!-- ===================== JUMMAH ===================== -->
+    <section class="jummah" aria-label="Jummah prayer times">
+      <h2 class="section-title jummah-title">
+        <span aria-hidden="true">🕌</span> Jummah Prayer <span class="jummah-sub">(Friday)</span>
+      </h2>
+      <div class="jummah-grid" id="jummahGrid"><!-- filled by JS --></div>
+    </section>
+
+    <!-- ===================== ANNOUNCEMENTS ===================== -->
+    <section class="announcements" id="announcementsSection" aria-label="Announcements">
+      <h2 class="section-title">Announcements</h2>
+      <div id="announcementsList"><!-- filled by JS --></div>
+    </section>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <p class="footer-org">Faizan-E-Madina</p>
+      <p class="footer-note">
+        <a id="footerLink" href="https://www.dawateislami.net" target="_blank" rel="noopener">Visit Dawat-e-Islami →</a>
+      </p>
+      <p class="footer-disclaimer">This website is not managed by the Mosque management.</p>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
