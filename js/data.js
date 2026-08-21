@@ -120,25 +120,16 @@ const jummahTimes = [
 
 // -----------------------------------------------------------
 //  ANNOUNCEMENTS
-//  Set active: false to temporarily hide without deleting
+//  Announcements are normally managed from the Google Sheet
+//  (rows labelled "Announcement 1", "Announcement 2", …).
+//  The entry below is only a FALLBACK shown if the sheet is
+//  unreachable. Set active: false to hide the fallback entirely.
 // -----------------------------------------------------------
 const announcements = [
   {
     active: true,
     icon: "📢",
-    title: "Jummah Reminder",
-    body: "Jummah Khutbah begins promptly at 1:30 PM. Please arrive early — doors open 30 minutes beforehand.",
-  },
-  {
-    active: true,
-    icon: "🌙",
-    title: "Islamic Event",
-    body: "Join us for our weekly Ijtema (Islamic lecture) every Sunday from 6PM till 8PM. All are welcome.",
-  },
-  {
-    active: false,   // hidden — set to true to show
-    icon: "⭐",
-    title: "Ramadan Schedule",
-    body: "Special Ramadan prayer times and Tarawih schedule will be posted one week before Ramadan.",
+    title: "",
+    body: "Please check with the masjid for the latest announcements.",
   },
 ];
