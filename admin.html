@@ -3,219 +3,188 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prayer Times — Update Tool</title>
+  <meta name="robots" content="noindex" />
+  <title>Update Prayer Times — Faizan-E-Madina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    :root { --green:#0f5132; --gold:#c8a24b; --bg:#f7faf8; --border:#e4ece7; --muted:#6b7d74; }
-    * { box-sizing: border-box; }
-    body {
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      background: var(--bg); color: #24312b; margin: 0; padding: 24px;
-      line-height: 1.5;
+    :root{
+      --ink:#f4efe9; --dim:#b9b3ab; --faint:#7d7a74; --accent:#e0a884;
+      --bg:#0b0f12; --panel:#141a1e; --line:#252d33; --ok:#7fd1a3; --err:#e88b8b;
+      --serif:'Cormorant Garamond',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
     }
-    .wrap { max-width: 760px; margin: 0 auto; }
-    h1 { color: var(--green); font-size: 1.5rem; margin: 0 0 4px; }
-    .sub { color: var(--muted); margin: 0 0 20px; }
-    .card {
-      background: #fff; border: 1px solid var(--border); border-radius: 14px;
-      padding: 18px 20px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(15,81,50,0.06);
-    }
-    h2 { color: var(--green); font-size: 1.1rem; margin: 0 0 12px; }
-    .row { display: grid; grid-template-columns: 110px 1fr 1fr; gap: 10px; align-items: center; margin-bottom: 10px; }
-    .row .name { font-weight: 700; }
-    label { display: block; }
-    .lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 600; margin-bottom: 3px; }
-    input {
-      width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 9px;
-      font-size: 1rem; font-family: inherit;
-    }
-    input:focus { outline: 2px solid var(--gold); border-color: var(--gold); }
-    .head-row { display: grid; grid-template-columns: 110px 1fr 1fr; gap: 10px; margin-bottom: 6px; }
-    .head-row .lbl { margin: 0; }
-    button {
-      background: var(--green); color: #fff; border: none; border-radius: 10px;
-      padding: 12px 22px; font-size: 1rem; font-weight: 700; cursor: pointer;
-    }
-    button.secondary { background: var(--gold); }
-    button:active { transform: translateY(1px); }
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0 16px; }
-    textarea {
-      width: 100%; min-height: 260px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
-      font-size: 0.85rem; border: 1px solid var(--border); border-radius: 10px; padding: 14px;
-      background: #0b3d26; color: #eaf3ee; line-height: 1.5;
-    }
-    .note { color: var(--muted); font-size: 0.9rem; }
-    ol { padding-left: 20px; }
-    code { background: #eef4f0; padding: 1px 5px; border-radius: 5px; }
-    .ok { color: var(--green); font-weight: 700; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;padding:28px 16px 60px}
+    .wrap{max-width:560px;margin:0 auto}
+    h1{font-family:var(--serif);font-weight:600;font-size:2rem;letter-spacing:.5px}
+    .sub{color:var(--dim);font-size:.92rem;margin:4px 0 22px}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 18px 20px;margin-bottom:16px}
+    h2{font-size:.72rem;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-weight:600;margin-bottom:14px}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+    .row:last-child{border-bottom:none}
+    .row label{font-weight:600}
+    .row .hint{display:block;font-weight:400;font-size:.75rem;color:var(--faint)}
+    input,textarea{font-family:var(--sans);font-size:1rem;color:var(--ink);background:#0e1418;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+    input{width:150px;text-align:right}
+    input:focus,textarea:focus{outline:2px solid var(--accent);border-color:var(--accent)}
+    textarea{width:100%;min-height:60px;resize:vertical;margin-bottom:8px}
+    .ann-row{display:flex;gap:8px;align-items:flex-start}
+    .ann-row textarea{flex:1}
+    .icon-btn{background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:10px;width:40px;min-width:40px;height:40px;font-size:1.2rem;cursor:pointer}
+    .icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .add-btn{background:transparent;border:1px dashed var(--line);color:var(--accent);border-radius:10px;padding:9px 14px;font-weight:600;cursor:pointer;font-size:.9rem}
+    .pw{width:100%;text-align:left}
+    .save{width:100%;background:linear-gradient(135deg,var(--accent),#c98a68);color:#1a1108;border:none;border-radius:12px;padding:15px;font-size:1.05rem;font-weight:700;cursor:pointer;margin-top:4px}
+    .save:disabled{opacity:.5;cursor:default}
+    .status{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:.92rem;display:none}
+    .status.show{display:block}
+    .status.ok{background:rgba(127,209,163,.12);color:var(--ok);border:1px solid rgba(127,209,163,.35)}
+    .status.err{background:rgba(232,139,139,.12);color:var(--err);border:1px solid rgba(232,139,139,.35)}
+    .status.info{background:rgba(224,168,132,.12);color:var(--accent);border:1px solid rgba(224,168,132,.35)}
+    .note{color:var(--faint);font-size:.82rem;margin-top:10px}
+    code{background:#0e1418;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:.85rem}
+    a{color:var(--accent)}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>🕌 Prayer Times — Update Tool</h1>
-    <p class="sub">Type the times, click <strong>Generate</strong>, then copy the result into <code>js/data.js</code>. Nothing is saved online — this runs entirely in your browser.</p>
+    <h1>Update Prayer Times</h1>
+    <p class="sub">Faizan-E-Madina · changes appear on the board within a few minutes.</p>
+
+    <div id="setupWarning" class="status err show" style="display:none"></div>
 
     <div class="card">
-      <h2>Location</h2>
-      <label><span class="lbl">Location text</span><input id="loc" value="Hamilton, Ontario" /></label>
-    </div>
-
-    <div class="card">
-      <h2>Daily Prayers — Iqamah</h2>
-      <p class="note" style="margin:-4px 0 12px">
-        <strong>Iqamah</strong> is masjid-specific — set it here.
-        <strong>Begins (Athan)</strong> is fetched automatically each day from the
-        Aladhan API; the value here is only a fallback if that service is down.
-        <br><strong>Maghrib's Iqamah is a number of minutes</strong> after its start
-        time (it changes with sunset each day), not a clock time.
-      </p>
-      <div class="head-row">
-        <div></div>
-        <div class="lbl">Iqamah 👈 edit</div>
-        <div class="lbl">Begins (fallback)</div>
+      <h2>Iqamah times</h2>
+      <div class="row"><label>Fajr</label><input id="fajr" placeholder="6:00 AM"></div>
+      <div class="row"><label>Dhuhr</label><input id="dhuhr" placeholder="2:00 PM"></div>
+      <div class="row"><label>Asr</label><input id="asr" placeholder="6:45 PM"></div>
+      <div class="row">
+        <label>Maghrib<span class="hint">a time (8:19 PM) or minutes after sunset (4)</span></label>
+        <input id="maghrib" placeholder="4">
       </div>
-      <div id="dailyRows"></div>
+      <div class="row"><label>Isha</label><input id="isha" placeholder="10:05 PM"></div>
     </div>
 
     <div class="card">
       <h2>Jummah (Friday)</h2>
-      <div class="note" style="margin-bottom:10px">One row per Jummah service. Leave a row blank to skip it.</div>
-      <div class="head-row">
-        <div class="lbl">Label</div>
-        <div class="lbl">Khutbah</div>
-        <div class="lbl">Iqamah</div>
+      <div class="row"><label>Khutbah starts</label><input id="jummahKhutbah" placeholder="1:30 PM"></div>
+      <div class="row"><label>Iqamah</label><input id="jummahIqamah" placeholder="2:05 PM"></div>
+    </div>
+
+    <div class="card">
+      <h2>Announcements</h2>
+      <div id="anns"></div>
+      <button type="button" class="add-btn" id="addAnn">+ Add announcement</button>
+      <p class="note">Leave all blank to show none. Each box is one notice on the board.</p>
+    </div>
+
+    <div class="card">
+      <h2>Confirm &amp; save</h2>
+      <div class="row" style="border:none;padding-bottom:0">
+        <label style="flex:1">Admin password</label>
       </div>
-      <div id="jummahRows"></div>
+      <input class="pw" id="password" type="password" placeholder="Enter admin password" autocomplete="current-password">
+      <div style="height:12px"></div>
+      <button class="save" id="save">Save changes</button>
+      <div id="status" class="status"></div>
     </div>
 
-    <div class="actions">
-      <button onclick="generate()">Generate</button>
-      <button class="secondary" onclick="copyOut()">Copy to clipboard</button>
-      <span id="copied" class="ok" style="align-self:center"></span>
-    </div>
-
-    <div class="card">
-      <h2>Result — paste this into <code>js/data.js</code></h2>
-      <p class="note">Replace the existing <code>config.location</code>, <code>prayerTimes</code>, and <code>jummahTimes</code> blocks with the text below.</p>
-      <textarea id="out" spellcheck="false" readonly></textarea>
-    </div>
-
-    <div class="card">
-      <h2>What next?</h2>
-      <ol class="note">
-        <li>Copy the result above.</li>
-        <li>Open <code>js/data.js</code> and replace the matching blocks.</li>
-        <li>Save and upload <code>js/data.js</code> back to GitHub.</li>
-      </ol>
-    </div>
+    <p class="note">Tip: the board also reads the same data even if this page is down. Times can be typed as <code>2:00 PM</code> or <code>14:00</code>.</p>
   </div>
 
+  <script src="js/data.js"></script>
   <script>
-    // Prefills — edit here if the defaults ever change
-    // [key, name, athanFallback, iqamahDefault, mode]
-    // mode "offset" => iqamah is minutes AFTER that day's start time (auto-adjusts)
-    const DAILY = [
-      ["fajr", "Fajr", "5:12 AM", "6:00 AM"],
-      ["dhuhr", "Dhuhr", "1:25 PM", "2:00 PM"],
-      ["asr", "Asr", "5:18 PM", "6:45 PM"],
-      ["maghrib", "Maghrib", "8:15 PM", 4, "offset"],
-      ["isha", "Isha", "9:42 PM", "10:05 PM"],
-    ];
-    const JUMMAH = [
-      ["Jummah", "1:30 PM", "2:05 PM"],
-      ["", "", ""],
-      ["", "", ""],
-    ];
-
-    function buildDaily() {
-      const box = document.getElementById("dailyRows");
-      DAILY.forEach(([key, name, athan, iqamah, mode]) => {
-        const row = document.createElement("div");
-        row.className = "row";
-        let iqInput;
-        if (mode === "offset") {
-          iqInput =
-            '<input data-key="' + key + '" data-t="iqamah" data-mode="offset" ' +
-            'type="number" min="0" value="' + iqamah + '" ' +
-            'title="Minutes after the start time — adjusts daily with sunset" />';
-        } else {
-          iqInput =
-            '<input data-key="' + key + '" data-t="iqamah" data-mode="time" value="' + iqamah + '" />';
-        }
-        row.innerHTML =
-          '<div class="name">' + name + '</div>' +
-          iqInput +
-          '<input data-key="' + key + '" data-t="athan" value="' + athan + '" />';
-        box.appendChild(row);
-      });
+    // ---- tiny CSV parser (same rules as the site) ----
+    function parseCSV(text){
+      const rows=[]; let row=[],f="",q=false;
+      for(let i=0;i<text.length;i++){const c=text[i];
+        if(q){ if(c=='"'){ if(text[i+1]=='"'){f+='"';i++;} else q=false;} else f+=c; }
+        else if(c=='"'){ q=true; }
+        else if(c==","){ row.push(f); f=""; }
+        else if(c=="\n"){ row.push(f); rows.push(row); row=[]; f=""; }
+        else if(c=="\r"){ /* skip */ }
+        else { f+=c; }
+      }
+      if(f.length||row.length){row.push(f);rows.push(row);}
+      return rows;
     }
-    function buildJummah() {
-      const box = document.getElementById("jummahRows");
-      JUMMAH.forEach((j, i) => {
-        const row = document.createElement("div");
-        row.className = "row";
-        row.innerHTML =
-          '<input data-j="' + i + '" data-t="label" placeholder="e.g. Jummah" value="' + j[0] + '" />' +
-          '<input data-j="' + i + '" data-t="athan" value="' + j[1] + '" />' +
-          '<input data-j="' + i + '" data-t="iqamah" value="' + j[2] + '" />';
-        box.appendChild(row);
-      });
+    const $=id=>document.getElementById(id);
+
+    function addAnnBox(value){
+      const wrap=document.createElement("div"); wrap.className="ann-row";
+      const ta=document.createElement("textarea"); ta.value=value||""; ta.placeholder="e.g. Eid prayer at 8:00 AM";
+      const rm=document.createElement("button"); rm.type="button"; rm.className="icon-btn"; rm.textContent="×"; rm.title="Remove";
+      rm.onclick=()=>wrap.remove();
+      wrap.append(ta,rm); $("anns").appendChild(wrap);
+    }
+    $("addAnn").onclick=()=>addAnnBox("");
+
+    // ---- prefill from the published sheet CSV ----
+    async function prefill(){
+      const anns=[];
+      try{
+        if(!config.sheetCsvUrl) throw 0;
+        const res=await fetch(config.sheetCsvUrl,{cache:"no-store"});
+        const rows=parseCSV(await res.text());
+        rows.forEach(r=>{
+          const k=(r[0]||"").trim().toLowerCase(), v=(r[1]||"").trim();
+          if(!k||!v)return;
+          if(k.startsWith("fajr"))$("fajr").value=v;
+          else if(k.startsWith("dhuhr")||k.startsWith("zuhr"))$("dhuhr").value=v;
+          else if(k.startsWith("asr"))$("asr").value=v;
+          else if(k.startsWith("maghrib"))$("maghrib").value=v;
+          else if(k.startsWith("isha"))$("isha").value=v;
+          else if(k.includes("khutbah"))$("jummahKhutbah").value=v;
+          else if(k.includes("jumm")||k.includes("jumu"))$("jummahIqamah").value=v;
+          else if(k.startsWith("announce")||k.startsWith("notice")||k.startsWith("message"))anns.push(v);
+        });
+      }catch(e){}
+      if(anns.length)anns.forEach(addAnnBox); else addAnnBox("");
     }
 
-    function q(sel) { return document.querySelector(sel); }
-    function val(el) { return el.value.trim(); }
-
-    function generate() {
-      const loc = val(q("#loc"));
-
-      let daily = "const prayerTimes = {\n";
-      DAILY.forEach(([key]) => {
-        const a = val(q('input[data-key="' + key + '"][data-t="athan"]'));
-        const iqEl = q('input[data-key="' + key + '"][data-t="iqamah"]');
-        const iq = val(iqEl);
-        const pad = (key + ":").padEnd(9, " ");
-        const iqOut = iqEl.getAttribute("data-mode") === "offset"
-          ? "{ offsetFromAthan: " + (parseInt(iq, 10) || 0) + " }"
-          : '"' + iq + '"';
-        daily += '  ' + pad + '{ athan: "' + a + '", iqamah: ' + iqOut + ' },\n';
-      });
-      daily += "};";
-
-      let jummah = "const jummahTimes = [\n";
-      JUMMAH.forEach((_, i) => {
-        const label = val(q('input[data-j="' + i + '"][data-t="label"]'));
-        const a = val(q('input[data-j="' + i + '"][data-t="athan"]'));
-        const iq = val(q('input[data-j="' + i + '"][data-t="iqamah"]'));
-        if (!label && !a && !iq) return;
-        jummah += '  { label: "' + label + '", athan: "' + a + '", iqamah: "' + iq + '" },\n';
-      });
-      jummah += "];";
-
-      const config = 'config.location = "' + loc + '";';
-
-      q("#out").value =
-        "// ---- Location ----\n" + config + "\n\n" +
-        "// ---- Daily prayers ----\n" + daily + "\n\n" +
-        "// ---- Jummah ----\n" + jummah + "\n";
-      q("#copied").textContent = "";
+    function showStatus(kind,msg){
+      const el=$("status"); el.className="status show "+kind; el.textContent=msg;
     }
 
-    function copyOut() {
-      const ta = q("#out");
-      if (!ta.value) generate();
-      ta.removeAttribute("readonly");
-      ta.select();
-      navigator.clipboard.writeText(ta.value).then(function () {
-        q("#copied").textContent = "✓ Copied!";
-      }).catch(function () {
-        document.execCommand("copy");
-        q("#copied").textContent = "✓ Copied!";
-      });
-      ta.setAttribute("readonly", "");
-    }
+    // ---- save ----
+    $("save").onclick=async ()=>{
+      const pw=$("password").value.trim();
+      if(!pw){ showStatus("err","Please enter the admin password."); return; }
+      if(!config.adminApiUrl){ showStatus("err","Saving isn't set up yet (adminApiUrl is empty). See README."); return; }
 
-    buildDaily();
-    buildJummah();
-    generate();
+      const payload={
+        password:pw,
+        values:{
+          fajr:$("fajr").value.trim(), dhuhr:$("dhuhr").value.trim(), asr:$("asr").value.trim(),
+          maghrib:$("maghrib").value.trim(), isha:$("isha").value.trim(),
+          jummahKhutbah:$("jummahKhutbah").value.trim(), jummahIqamah:$("jummahIqamah").value.trim()
+        },
+        announcements:[...document.querySelectorAll("#anns textarea")].map(t=>t.value.trim()).filter(Boolean)
+      };
+
+      $("save").disabled=true; showStatus("info","Saving…");
+      try{
+        // text/plain body = a "simple" request (no CORS preflight)
+        const res=await fetch(config.adminApiUrl,{method:"POST",body:JSON.stringify(payload)});
+        const data=await res.json();
+        if(data.ok) showStatus("ok","✓ Saved. The board updates within a few minutes.");
+        else showStatus("err","Couldn't save: "+(data.error||"unknown error"));
+      }catch(e){
+        // Response couldn't be read (browser CORS). Fire a no-cors write so the
+        // save still lands, and tell the admin we couldn't confirm.
+        try{ await fetch(config.adminApiUrl,{method:"POST",mode:"no-cors",body:JSON.stringify(payload)}); }catch(_){}
+        showStatus("info","Saved (couldn't confirm in this browser). If the password was correct, the board updates within a few minutes.");
+      }finally{
+        $("save").disabled=false;
+      }
+    };
+
+    // init
+    if(!config.adminApiUrl){
+      const w=$("setupWarning"); w.style.display="block";
+      w.textContent="Note: saving isn't wired up yet — add the Apps Script Web App URL to config.adminApiUrl (see README). You can still preview the form.";
+    }
+    prefill();
   </script>
 </body>
 </html>

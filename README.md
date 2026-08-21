@@ -24,21 +24,32 @@ hosted on **GitHub Pages**.
 ## Files
 
 ```
-index.html        Page structure — cinematic hero + prayer rows (rarely edited)
-admin.html         👈 Open in a browser to edit Iqamah / Jummah times easily
-css/styles.css     All styling, colors, and the time-of-day sky palettes
-js/data.js         Iqamah times, Jummah, address, announcements, API settings
-js/app.js          App logic — clock, live times, countdown (no editing needed)
+index.html            Page structure — cinematic hero + prayer rows (rarely edited)
+admin.html             👈 Admin form: edit times/announcements, saves to the Sheet
+google-apps-script.gs  Code to paste into the Sheet's Apps Script (save endpoint)
+css/styles.css         All styling, colors, and the time-of-day sky palettes
+js/data.js             Iqamah times, Jummah, address, announcements, API settings
+js/app.js              App logic — clock, live times, countdown (no editing needed)
 ```
 
-## Easiest way to update Iqamah times
+## Admin page to edit times (the friendly way)
 
-1. Open **`admin.html`** in any web browser (double-click it).
-2. Type the new **Iqamah** times (and Jummah times). Maghrib is entered as a
-   number of minutes after its start time.
-3. Click **Generate**, then **Copy to clipboard**.
-4. Open **`js/data.js`**, replace the `config.location`, `prayerTimes`, and
-   `jummahTimes` blocks with what you copied, save, and push to GitHub.
+`admin.html` is a form where admins type the Iqamah / Jummah times and
+announcements and click **Save** — it writes straight into the Google Sheet
+(which the board already reads). To turn it on:
+
+1. Set up the Google Sheet first (see the next section).
+2. Open **`google-apps-script.gs`** and follow the setup steps at the top:
+   paste it into the Sheet's **Extensions → Apps Script**, set an
+   `ADMIN_PASSWORD` script property, and **Deploy → Web app** ("Execute as: me",
+   "Who has access: Anyone"). Copy the `/exec` URL it gives you.
+3. Paste that URL into `config.adminApiUrl` in `js/data.js`; commit/push.
+4. Share the admin page with admins: `https://<your-site>/admin.html`, and give
+   them the password. They edit and Save — the board updates within a few minutes.
+
+> The admin page pre-fills from the Sheet, so admins always see the current
+> values. Saving is password-checked inside the Apps Script (the password is
+> never stored in the website's code).
 
 ## Let admins edit times via Google Sheets (no code, no GitHub)
 

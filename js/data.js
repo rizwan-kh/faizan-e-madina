@@ -44,6 +44,11 @@ const config = {
   // See README ("Let admins edit times via Google Sheets") for setup steps.
   sheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRvrOJbcI7kOhz4Yx4QK8nc7PTcgOK6jmoeL7m4yVcsx56mT4PMLzOsBz8jOC2OYMofYQ-ckq81oAsK/pub?gid=0&single=true&output=csv",
 
+  // Admin form (admin.html) save endpoint: the Google Apps Script Web App
+  // "/exec" URL that writes to the sheet. Leave "" until you deploy the script
+  // (see README → "Admin page to edit times"). Used only by admin.html.
+  adminApiUrl: "",
+
   // ---- Automatic prayer START times (Athan) ----
   // Start times are fetched live from the free Aladhan API for the
   // location below. Iqamah times are NOT from the API — they are
