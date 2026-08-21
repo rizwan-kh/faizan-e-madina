@@ -35,7 +35,7 @@ const config = {
   // Optional: paste an exact Google Maps link here to override the address-based
   // directions link (e.g. a Google Maps place/share URL). Leave "" to auto-build
   // a directions link from the address above.
-  mapsUrl: "https://share.google/DqcJ3D4L7X6BZ0s7y",
+  mapsUrl: "",
 
   // ---- Automatic prayer START times (Athan) ----
   // Start times are fetched live from the free Aladhan API for the
