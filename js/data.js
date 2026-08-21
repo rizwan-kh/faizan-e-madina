@@ -47,7 +47,7 @@ const config = {
   // Admin form (admin.html) save endpoint: the Google Apps Script Web App
   // "/exec" URL that writes to the sheet. Leave "" until you deploy the script
   // (see README → "Admin page to edit times"). Used only by admin.html.
-  adminApiUrl: "",
+  adminApiUrl: "https://script.google.com/macros/s/AKfycbxjiS5jmezCAY66W806YcKpYeT0gtqkUpuju7svaVzSyXNYMCBYVk9wS0WI9oxqnzn-/exec",
 
   // ---- Automatic prayer START times (Athan) ----
   // Start times are fetched live from the free Aladhan API for the
