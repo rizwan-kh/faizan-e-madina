@@ -29,6 +29,9 @@ const config = {
   // Redirect button in the footer points to the official Dawat-e-Islami site.
   websiteUrl: "https://www.dawateislami.net",
 
+  // Donation link (opens in a new tab). Leave "" to hide the Donate button.
+  donateUrl: "https://dawat-e-islami-canada-4294.myhelcim.com/hosted/?token=c83297492e8f09af5b2677",
+
   // ---- Masjid address (shown on the page + used for the Directions button) ----
   address: "1202 Dunsmure Rd, Hamilton, ON L8H 1L4",
 

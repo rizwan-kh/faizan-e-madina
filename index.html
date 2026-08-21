@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/styles.css?v=6" />
+  <link rel="stylesheet" href="css/styles.css?v=7" />
 </head>
 <body>
   <!-- ===================== CINEMATIC HERO ===================== -->
@@ -49,6 +49,10 @@
           <stop offset="0%" stop-color="#0b0f12" stop-opacity="0.55"/>
           <stop offset="100%" stop-color="#05070a" stop-opacity="0.92"/>
         </linearGradient>
+        <linearGradient id="silhGreen" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2f8a5f" stop-opacity="0.95"/>
+          <stop offset="100%" stop-color="#12503a" stop-opacity="0.95"/>
+        </linearGradient>
       </defs>
       <g fill="url(#silh)">
         <!-- distant rooftops (left) -->
@@ -61,7 +65,7 @@
         <path d="M768 258 L765 274 H771 Z"/>                  <!-- spire -->
         <path d="M768 244 a6 6 0 1 0 0 12 a4.5 4.5 0 1 1 0 -12z"/><!-- crescent finial -->
 
-        <!-- minaret (Ottoman style, grounded) -->
+        <!-- minaret (Ottoman style, grounded) — original dark silhouette -->
         <rect x="898" y="150" width="16" height="170"/>       <!-- shaft to ground -->
         <path d="M898 150 h16 l-3 -9 h-10 z"/>                 <!-- shaft top taper -->
         <rect x="887" y="141" width="38" height="10" rx="2"/> <!-- balcony overhang -->
@@ -70,14 +74,18 @@
         <path d="M906 60 L900 114 H912 Z"/>                   <!-- tapering conical cap -->
         <circle cx="906" cy="55" r="3.6"/>                    <!-- finial ball -->
 
-        <!-- main dome (far right) -->
-        <path d="M1000 320 V250 a70 70 0 0 1 140 0 V320 Z"/>
-        <path d="M1070 128 L1064 180 H1076 Z"/>              <!-- spire -->
-        <path d="M1070 110 a8 8 0 1 0 0 16 a6 6 0 1 1 0 -16z"/><!-- crescent finial -->
+        <!-- main dome (far right) — GREEN, with a tilted gold crescent finial -->
+        <g fill="url(#silhGreen)">
+          <path d="M1000 320 V250 a70 70 0 0 1 140 0 V320 Z"/>
+          <path d="M1070 132 L1065 180 H1075 Z"/>              <!-- spire -->
+        </g>
+        <circle cx="1070" cy="126" r="3.4" fill="#f5d98a"/>    <!-- gold finial ball -->
+        <path d="M1070 96 a12 12 0 1 0 0 24 a9 9 0 1 1 0 -24z" transform="rotate(-22 1070 108)" fill="#f5d98a"/><!-- tilted gold crescent -->
       </g>
 
-      <!-- Moon in the sky — phase set by JS from the Hijri day of month -->
-      <g class="moon" aria-hidden="true">
+      <!-- Moon by the minaret — phase set by JS (Hijri day); hover for a note -->
+      <g class="moon" role="img">
+        <title id="moonTitle">The moon shows the current Hijri phase</title>
         <circle cx="918" cy="30" r="13" fill="#f2efe6" opacity="0.07"/><!-- faint dark side -->
         <path id="moonLit" fill="#f4f1e8" opacity="0.96"/><!-- illuminated part -->
       </g>
@@ -167,7 +175,6 @@
     <!-- ===================== FIVE PILLARS ===================== -->
     <section class="pillars-section" aria-label="The Five Pillars of Islam">
       <h2 class="section-title">The Five Pillars of Islam</h2>
-      <p class="pillars-hint">Hover or tap each pillar to learn more.</p>
       <div class="pillars" id="pillars">
         <button class="pillar" type="button" aria-expanded="false">
           <span class="pillar-num">1</span>
@@ -207,6 +214,9 @@
   <footer class="site-footer">
     <div class="container">
       <p class="footer-org">Faizan-E-Madina</p>
+      <p class="footer-donate">
+        <a id="donateBtn" href="#" target="_blank" rel="noopener">♥ Donate</a>
+      </p>
       <p class="footer-note">
         <a id="footerLink" href="https://www.dawateislami.net" target="_blank" rel="noopener">Visit Dawat-e-Islami →</a>
       </p>
@@ -215,7 +225,7 @@
     </div>
   </footer>
 
-  <script src="js/data.js?v=6"></script>
-  <script src="js/app.js?v=6"></script>
+  <script src="js/data.js?v=7"></script>
+  <script src="js/app.js?v=7"></script>
 </body>
 </html>

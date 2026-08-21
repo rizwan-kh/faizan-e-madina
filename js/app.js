@@ -238,6 +238,12 @@ function renderStatic() {
 
   const link = document.getElementById("footerLink");
   if (link) link.href = config.websiteUrl;
+
+  const donate = document.getElementById("donateBtn");
+  if (donate) {
+    if (config.donateUrl) donate.href = config.donateUrl;
+    else donate.style.display = "none";
+  }
 }
 
 // -----------------------------------------------------------
@@ -366,6 +372,14 @@ function renderMoon() {
 
   // Must match the <circle> in index.html
   lit.setAttribute("d", moonLitPath(918, 30, 13, f, waxing));
+
+  // Tooltip: the moon shape matches the Hijri date's phase
+  const title = document.getElementById("moonTitle");
+  if (title) {
+    const h = document.getElementById("hijriDate");
+    title.textContent = "The moon shows tonight's phase for the Hijri date" +
+      (h && h.textContent ? " — " + h.textContent : "");
+  }
 }
 
 // -----------------------------------------------------------

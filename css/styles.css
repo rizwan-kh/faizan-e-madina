@@ -138,7 +138,12 @@ body[data-period="sunset"] .stars { opacity: 0; }
   width: 100%;
   height: min(52%, 340px);
   z-index: -1;
+  pointer-events: none;         /* decorative, except the moon (below) */
 }
+.hero .skyline .moon { pointer-events: auto; cursor: help; }
+/* let hover reach the moon behind the content; keep links/inputs clickable */
+.hero-inner { pointer-events: none; }
+.hero-inner a, .hero-inner button, .hero-inner input { pointer-events: auto; }
 
 .hero-inner {
   position: relative;
@@ -578,6 +583,24 @@ main.container { padding-top: 8px; padding-bottom: 8px; }
   margin-top: 24px;
 }
 .footer-org { font-family: var(--serif); font-weight: 600; font-size: 1.4rem; letter-spacing: 0.5px; }
+.footer-donate { margin-top: 14px; }
+.footer-donate a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: linear-gradient(135deg, var(--accent), #c98a68);
+  color: #1a1108;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+  text-decoration: none;
+  padding: 11px 26px;
+  border-radius: 999px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+  transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease);
+}
+.footer-donate a:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.45); }
+.footer-donate a:active { transform: translateY(0); }
 .footer-note { margin: 8px 0; }
 .footer-note a { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
 .footer-note a:hover { text-decoration: underline; }
