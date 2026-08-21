@@ -241,6 +241,26 @@ function renderStatic() {
 }
 
 // -----------------------------------------------------------
+//  Five Pillars — tap to toggle the tooltip (hover handles desktop)
+// -----------------------------------------------------------
+function wirePillars() {
+  const pillars = [...document.querySelectorAll(".pillar")];
+  if (!pillars.length) return;
+  pillars.forEach((p) => {
+    p.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const wasOpen = p.classList.contains("open");
+      pillars.forEach((o) => { o.classList.remove("open"); o.setAttribute("aria-expanded", "false"); });
+      if (!wasOpen) { p.classList.add("open"); p.setAttribute("aria-expanded", "true"); }
+    });
+  });
+  // Tap anywhere else closes any open tooltip
+  document.addEventListener("click", () => {
+    pillars.forEach((o) => { o.classList.remove("open"); o.setAttribute("aria-expanded", "false"); });
+  });
+}
+
+// -----------------------------------------------------------
 //  Live clock (updates every second, masjid timezone)
 // -----------------------------------------------------------
 function startClock() {
@@ -568,6 +588,7 @@ async function init() {
   renderDate();
   renderMoon();
   startClock();
+  wirePillars();
 
   // Load live Athan (start) times and admin-edited Iqamah times (Google
   // Sheet) in parallel before the first render. Each falls back on its own.

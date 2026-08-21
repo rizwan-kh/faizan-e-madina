@@ -397,6 +397,113 @@ main.container { padding-top: 8px; padding-bottom: 8px; }
 .announcement .a-title { font-weight: 700; color: var(--ink); margin-bottom: 3px; }
 .announcement .a-body { color: var(--ink-dim); font-size: 0.92rem; }
 
+/* ===================== FAITH: SHAHADA + SALAWAT ===================== */
+.faith { display: grid; gap: 16px; margin: 30px 0; }
+@media (min-width: 760px) { .faith { grid-template-columns: 1fr 1fr; } }
+.faith-card {
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(224,168,132,0.10), transparent 60%),
+    var(--panel);
+  border: 1px solid var(--panel-line);
+  border-radius: 18px;
+  padding: 24px 22px;
+  text-align: center;
+}
+.faith-kicker {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.faith-ar {
+  font-family: 'Amiri', serif;
+  font-size: 1.9rem;
+  line-height: 1.9;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+.faith-tr { font-style: italic; color: var(--dim, var(--ink-dim)); font-size: 0.95rem; margin-bottom: 8px; }
+.faith-en { color: var(--ink-dim); font-size: 0.92rem; }
+
+/* ===================== FIVE PILLARS ===================== */
+.pillars-section { margin: 34px 0 8px; }
+.pillars-hint { text-align: center; color: var(--ink-faint); font-size: 0.82rem; margin: -6px 0 18px; }
+.pillars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+@media (max-width: 640px) { .pillars { grid-template-columns: repeat(2, 1fr); } }
+
+.pillar {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  border-radius: 16px;
+  padding: 20px 12px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--ink);
+  font-family: var(--sans);
+  transition: transform 0.18s var(--ease), border-color 0.18s var(--ease);
+}
+.pillar:hover, .pillar:focus-visible, .pillar.open {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  outline: none;
+}
+.pillar-num {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.78rem; font-weight: 700;
+}
+.pillar-name { font-weight: 700; font-size: 1rem; }
+.pillar-ar { font-family: 'Amiri', serif; font-size: 1.25rem; color: var(--accent); }
+
+/* Tooltip */
+.pillar-tip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  width: max(200px, 100%);
+  max-width: 260px;
+  background: #10161b;
+  border: 1px solid var(--panel-line);
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--ink-dim);
+  text-align: left;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.18s var(--ease), transform 0.18s var(--ease);
+  z-index: 5;
+  pointer-events: none;
+}
+.pillar-tip::after {
+  content: "";
+  position: absolute;
+  top: 100%; left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #10161b;
+}
+.pillar:hover .pillar-tip,
+.pillar:focus-visible .pillar-tip,
+.pillar.open .pillar-tip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* ===================== FOOTER ===================== */
 .site-footer {
   text-align: center;
